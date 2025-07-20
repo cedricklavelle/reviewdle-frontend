@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Box,
   Button,
   Chip,
@@ -15,10 +14,10 @@ import {
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
-import { useState } from "react";
+import { useReducer } from "react";
 import { Route } from "~/routes/daily";
 import { Movie } from "~/types/movie";
-import { Guess } from "~/types/guess";
+import { GameState, Guess } from "~/types/gameState";
 
 const centeredFlex = {
   display: "flex",
@@ -30,47 +29,67 @@ const hintPlacement = {
   top: 8,
 };
 
+const MAX_GUESSES = 5;
+
+function reducer(state: GameState, action: GameAction) {
+  const { type } = action;
+
+  switch (type) {
+    case "SUBMIT": {
+      const guessName = state.input;
+      const newGuess: Guess = {
+        guessName: guessName,
+        guessSuccess: state.answer === guessName,
+      };
+      const guesses = [...state.guesses, newGuess];
+      return {
+        ...state,
+        gameWon: newGuess.guessSuccess,
+        gameLost:  guesses.length >= MAX_GUESSES && !newGuess.guessSuccess,
+        guesses: guesses,
+        input:"",
+        currentIndex: newGuess.guessSuccess
+          ? state.currentIndex
+          : guesses.length,
+      };
+    }
+    case "SKIP": {
+      const newGuess: Guess = {
+        guessName: "Skipped",
+        guessSuccess: state.gameWon,
+      };
+      const guesses = [...state.guesses, newGuess];
+      return {
+        ...state,
+        guesses: guesses,
+        currentIndex: guesses.length,
+        gameLost: guesses.length >= MAX_GUESSES,
+        input:""
+      };
+    }
+    case "SET_INPUT": {
+      return { ...state, input: action.input };
+    }
+    case "SET_DISPLAY_INDEX":
+      return { ...state, currentIndex: action.indexNumber };
+    default:
+      return state;
+  }
+}
+
 export const Game = () => {
   const movie: Movie = Route.useLoaderData();
-  const [displayedReviewIndex, setDisplayedReviewIndex] = useState<number>(1);
-  const [maxDisplayedHint, setmaxDisplayedHint] = useState<number>(1);
-  const [inputValue, setInputValue] = useState("");
+  const [state, dispatch] = useReducer(reducer, {
+    answer: movie.name,
+    input: "",
+    gameWon: false,
+    gameLost: false,
+    guesses: [],
+    currentIndex: 0,
+  });
 
-  const [guesses, setGuesses] = useState<Guess[]>([]);
-  const [gameWon, setGameWon] = useState<boolean>(false);
-  const handleSubmit = () => {
-    if (inputValue === movie.name) {
-      setGameWon(true);
-    }
-    setGuesses([
-      ...guesses,
-      {
-        guessName: inputValue,
-        guessNumber: maxDisplayedHint,
-        guessSuccess: inputValue === movie.name,
-      },
-    ]);
-    if (inputValue != movie.name) {
-      setmaxDisplayedHint(maxDisplayedHint + 1);
-      setDisplayedReviewIndex(maxDisplayedHint + 1);
-    }
-    setInputValue("");
-  };
-  const gameLost = maxDisplayedHint >= 6;
-  const gameOver = gameLost || gameWon;
-  const handleSkip = () => {
-    setmaxDisplayedHint(maxDisplayedHint + 1);
-    setDisplayedReviewIndex(maxDisplayedHint + 1);
-    setGuesses([
-      ...guesses,
-      {
-        guessName: "Skipped",
-        guessNumber: maxDisplayedHint,
-        guessSuccess: false,
-      },
-    ]);
-    setInputValue("");
-  };
+  const gameOver = state.gameWon || state.gameLost;
+  const maxDisplayedHint = state.guesses.length + 1;
 
   return (
     <Box
@@ -110,7 +129,7 @@ export const Game = () => {
             sx={{
               ...hintPlacement,
               visibility:
-                maxDisplayedHint > 2 || gameWon ? "visible" : "hidden",
+                maxDisplayedHint >= 3 || state.gameWon ? "visible" : "hidden",
             }}
             direction="row"
           >
@@ -124,7 +143,7 @@ export const Game = () => {
               ...hintPlacement,
               right: 8,
               visibility:
-                maxDisplayedHint > 4 || gameWon ? "visible" : "hidden",
+                maxDisplayedHint >= 5 || state.gameWon ? "visible" : "hidden",
             }}
             label={`Release year : ${movie.releaseYear}`}
           />
@@ -138,7 +157,7 @@ export const Game = () => {
               }}
             >
               <Stack direction="column">
-                {gameLost && (
+                {state.gameLost && (
                   <Box pb={2}>
                     <Typography
                       sx={{ ...centeredFlex }}
@@ -153,7 +172,7 @@ export const Game = () => {
                     </Typography>
                   </Box>
                 )}
-                {gameWon && (
+                {state.gameWon && (
                   <Box pb={2}>
                     <Typography
                       sx={{ ...centeredFlex }}
@@ -171,7 +190,7 @@ export const Game = () => {
                 <Typography sx={{ ...centeredFlex }} variant="h6">
                   {
                     movie.reviews.find(
-                      (review) => review.hintNumber === displayedReviewIndex
+                      (review) => review.hintNumber === state.currentIndex + 1
                     )?.review
                   }
                 </Typography>
@@ -185,41 +204,51 @@ export const Game = () => {
             >
               <Stack spacing={2} direction="row">
                 <Button
-                  onClick={() => setDisplayedReviewIndex(1)}
+                  onClick={() =>
+                    dispatch({ type: "SET_DISPLAY_INDEX", indexNumber: 0 })
+                  }
                   variant="contained"
                 >
                   1
                 </Button>
                 <Button
-                  disabled={maxDisplayedHint < 2 && !gameWon}
-                  onClick={() => setDisplayedReviewIndex(2)}
+                  disabled={maxDisplayedHint < 2 && !state.gameWon}
+                  onClick={() =>
+                    dispatch({ type: "SET_DISPLAY_INDEX", indexNumber: 1 })
+                  }
                   variant="contained"
                 >
                   2
                 </Button>
                 <Button
-                  onClick={() => setDisplayedReviewIndex(3)}
-                  disabled={maxDisplayedHint < 3 && !gameWon}
+                  onClick={() =>
+                    dispatch({ type: "SET_DISPLAY_INDEX", indexNumber: 2 })
+                  }
+                  disabled={maxDisplayedHint < 3 && !state.gameWon}
                   variant="contained"
                 >
                   3
                 </Button>
                 <Button
-                  onClick={() => setDisplayedReviewIndex(4)}
-                  disabled={maxDisplayedHint < 4 && !gameWon}
+                  onClick={() =>
+                    dispatch({ type: "SET_DISPLAY_INDEX", indexNumber: 3 })
+                  }
+                  disabled={maxDisplayedHint < 4 && !state.gameWon}
                   variant="contained"
                 >
                   4
                 </Button>
                 <Button
-                  onClick={() => setDisplayedReviewIndex(5)}
-                  disabled={maxDisplayedHint < 5 && !gameWon}
+                  onClick={() =>
+                    dispatch({ type: "SET_DISPLAY_INDEX", indexNumber: 4 })
+                  }
+                  disabled={maxDisplayedHint < 5 && !state.gameWon}
                   variant="contained"
                 >
                   5
                 </Button>
                 <Button
-                  onClick={handleSkip}
+                  onClick={() => dispatch({ type: "SKIP" })}
                   disabled={gameOver}
                   color="warning"
                   variant="contained"
@@ -230,7 +259,6 @@ export const Game = () => {
             </Box>
           </Paper>
         </Box>
-
         <Box pt={2}>
           <Stack direction="column">
             <Stack spacing={-4} direction="column">
@@ -238,48 +266,44 @@ export const Game = () => {
                 sx={{ width: "100%", height: 100 }}
                 variant="outlined"
                 label="Movie Name"
-                value={inputValue}
+                value={state.input}
                 disabled={gameOver}
-                onChange={(e) => setInputValue(e.target.value)}
+                onChange={(e) =>
+                  dispatch({ type: "SET_INPUT", input: e.target.value })
+                }
               />
               <Button
                 disabled={gameOver}
-                onClick={handleSubmit}
+                onClick={() => dispatch({ type: "SUBMIT" })}
                 variant="contained"
               >
                 Submit
               </Button>
             </Stack>
             <List>
-              {guesses.map((guess) => (
-                <ListItem
-                  key={guess.guessNumber}
-                  sx={{
-                    bgcolor: "background.paper",
-                    outline: "black",
-                  }}
-                >
-                  {guess.guessSuccess === false && (
-                    <ListItemIcon
-                      sx={{
-                        color: "error.main",
-                      }}
-                    >
-                      <HighlightOffIcon></HighlightOffIcon>
+              {state.guesses.map((guess, index) => {
+                const IconComponent = guess.guessSuccess
+                  ? CheckCircleIcon
+                  : HighlightOffIcon;
+                const iconColor = guess.guessSuccess
+                  ? "success.main"
+                  : "error.main";
+
+                return (
+                  <ListItem
+                    key={index}
+                    sx={{
+                      bgcolor: "background.paper",
+                      outline: "black",
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: iconColor }}>
+                      <IconComponent />
                     </ListItemIcon>
-                  )}
-                  {guess.guessSuccess === true && (
-                    <ListItemIcon
-                      sx={{
-                        color: "success.main",
-                      }}
-                    >
-                      <CheckCircleIcon></CheckCircleIcon>
-                    </ListItemIcon>
-                  )}
-                  <ListItemText>{guess.guessName}</ListItemText>{" "}
-                </ListItem>
-              ))}
+                    <ListItemText>{guess.guessName}</ListItemText>
+                  </ListItem>
+                );
+              })}
             </List>
           </Stack>
         </Box>
