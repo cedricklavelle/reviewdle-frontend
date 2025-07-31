@@ -61,12 +61,15 @@ export function Header() {
           </Typography>
 
             <Stack direction="row" spacing={2}>
-              <Button component={Link} to="/daily" color="inherit">
+              <Button component={Link} to="/archives/17" color="inherit">
                 Daily
               </Button>
               <Button component={Link} to="/archives" color="inherit">
                 Archives
               </Button>
+              <Button component={Link} to="/daily/add" color="inherit">
+              Add
+            </Button>
             </Stack>
           </Box>
           <Box

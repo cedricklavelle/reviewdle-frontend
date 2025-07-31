@@ -11,8 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as DailyIndexRouteImport } from './routes/daily/index'
 import { Route as ArchivesIndexRouteImport } from './routes/archives/index'
+import { Route as DailyAddRouteImport } from './routes/daily/add'
+import { Route as ArchivesGameIdRouteImport } from './routes/archives/$gameId'
 
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
@@ -24,49 +25,64 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DailyIndexRoute = DailyIndexRouteImport.update({
-  id: '/daily/',
-  path: '/daily/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ArchivesIndexRoute = ArchivesIndexRouteImport.update({
   id: '/archives/',
   path: '/archives/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DailyAddRoute = DailyAddRouteImport.update({
+  id: '/daily/add',
+  path: '/daily/add',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArchivesGameIdRoute = ArchivesGameIdRouteImport.update({
+  id: '/archives/$gameId',
+  path: '/archives/$gameId',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/archives/$gameId': typeof ArchivesGameIdRoute
+  '/daily/add': typeof DailyAddRoute
   '/archives': typeof ArchivesIndexRoute
-  '/daily': typeof DailyIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/archives/$gameId': typeof ArchivesGameIdRoute
+  '/daily/add': typeof DailyAddRoute
   '/archives': typeof ArchivesIndexRoute
-  '/daily': typeof DailyIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/archives/$gameId': typeof ArchivesGameIdRoute
+  '/daily/add': typeof DailyAddRoute
   '/archives/': typeof ArchivesIndexRoute
-  '/daily/': typeof DailyIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/archives' | '/daily'
+  fullPaths: '/' | '/about' | '/archives/$gameId' | '/daily/add' | '/archives'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/archives' | '/daily'
-  id: '__root__' | '/' | '/about' | '/archives/' | '/daily/'
+  to: '/' | '/about' | '/archives/$gameId' | '/daily/add' | '/archives'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/archives/$gameId'
+    | '/daily/add'
+    | '/archives/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  ArchivesGameIdRoute: typeof ArchivesGameIdRoute
+  DailyAddRoute: typeof DailyAddRoute
   ArchivesIndexRoute: typeof ArchivesIndexRoute
-  DailyIndexRoute: typeof DailyIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -85,18 +101,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/daily/': {
-      id: '/daily/'
-      path: '/daily'
-      fullPath: '/daily'
-      preLoaderRoute: typeof DailyIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/archives/': {
       id: '/archives/'
       path: '/archives'
       fullPath: '/archives'
       preLoaderRoute: typeof ArchivesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/daily/add': {
+      id: '/daily/add'
+      path: '/daily/add'
+      fullPath: '/daily/add'
+      preLoaderRoute: typeof DailyAddRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/archives/$gameId': {
+      id: '/archives/$gameId'
+      path: '/archives/$gameId'
+      fullPath: '/archives/$gameId'
+      preLoaderRoute: typeof ArchivesGameIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -105,8 +128,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  ArchivesGameIdRoute: ArchivesGameIdRoute,
+  DailyAddRoute: DailyAddRoute,
   ArchivesIndexRoute: ArchivesIndexRoute,
-  DailyIndexRoute: DailyIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

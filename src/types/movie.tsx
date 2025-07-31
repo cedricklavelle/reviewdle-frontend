@@ -1,14 +1,12 @@
-export type Review = {
-  review: string;
-  hintNumber: number;
-};
+import { Review } from "./review";
 
 export type Movie = {
   id: string;
-  name: string;
+  title: string;
+  poster: string;
   dailyDate: string;
   genres: string[];
-  releaseYear: number;
+  releaseDate: number;
   letterboxdScore: number;
   reviews: Review[];
 };

@@ -15,7 +15,6 @@ export const Home = () => {
         overflow: 'hidden',
       }}
     >
-      {/* Blur + content layer */}
       <Box
         sx={{
           position: 'absolute',
@@ -32,7 +31,6 @@ export const Home = () => {
           zIndex: 1,
         }}
       >
-        {/* Film reel + title */}
         <Box  sx={{ position: 'relative', width: 300  }}>
           <img
             src="https://as1.ftcdn.net/v2/jpg/08/01/95/18/1000_F_801951813_nXwdz5fjWMLMikTyPNV1DMjZiJCZZxVB.jpg"
@@ -41,7 +39,7 @@ export const Home = () => {
               width: '100%',
               height: 'auto',
               display: 'block',
-              filter: 'drop-shadow(0 0 10px black)',
+              filter: 'drop-shadow(0 0 100px black)',
             }}
           />
           <Box
@@ -64,7 +62,6 @@ export const Home = () => {
           </Box>
         </Box>
 
-        {/* Centered button below */}
         <Button
           variant="contained"
           color="primary"

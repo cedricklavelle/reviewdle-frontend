@@ -1,10 +1,13 @@
+import { Movie } from "./movie";
+
 export type Guess = {
   guessName: String;
   guessSuccess: boolean;
 };
 
 export type GameState = {
-  answer: string;
+  movieAnswer: Movie | null | undefined ;
+  movieGuess: Movie | null ;
   input: string;
   gameWon: boolean;
   gameLost: boolean;

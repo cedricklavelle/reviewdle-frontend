@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   Chip,
@@ -14,10 +15,14 @@ import {
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
-import { useReducer } from "react";
-import { Route } from "~/routes/daily";
+import { useReducer} from "react";
+
 import { Movie } from "~/types/movie";
 import { GameState, Guess } from "~/types/gameState";
+import useFetchMovies from "~/hooks/useFetchMovies";
+import { GameAction } from "~/types/gameAction";
+import { Route } from "~/routes/archives/$gameId";
+import { Game as GameType } from "~/types/game";
 
 const centeredFlex = {
   display: "flex",
@@ -36,18 +41,21 @@ function reducer(state: GameState, action: GameAction) {
 
   switch (type) {
     case "SUBMIT": {
-      const guessName = state.input;
+      const movieGuess = state.movieGuess;
       const newGuess: Guess = {
-        guessName: guessName,
-        guessSuccess: state.answer === guessName,
+        guessName: movieGuess ? movieGuess.title : "Skipped",
+        guessSuccess: movieGuess
+          ? state.movieAnswer?.id === movieGuess.id
+          : false,
       };
       const guesses = [...state.guesses, newGuess];
       return {
         ...state,
         gameWon: newGuess.guessSuccess,
-        gameLost:  guesses.length >= MAX_GUESSES && !newGuess.guessSuccess,
+        gameLost: guesses.length >= MAX_GUESSES && !newGuess.guessSuccess,
         guesses: guesses,
-        input:"",
+        input: "",
+        movieGuess: null,
         currentIndex: newGuess.guessSuccess
           ? state.currentIndex
           : guesses.length,
@@ -59,16 +67,21 @@ function reducer(state: GameState, action: GameAction) {
         guessSuccess: state.gameWon,
       };
       const guesses = [...state.guesses, newGuess];
+      const gameLost = guesses.length >= MAX_GUESSES
       return {
         ...state,
         guesses: guesses,
-        currentIndex: guesses.length,
-        gameLost: guesses.length >= MAX_GUESSES,
-        input:""
+        currentIndex: gameLost ? state.currentIndex : guesses.length,
+        gameLost: gameLost,
+        movieGuess: null,
+        input: "",
       };
     }
     case "SET_INPUT": {
       return { ...state, input: action.input };
+    }
+    case "SET_SELECTED_MOVIE": {
+      return { ...state, movieGuess: action.selectedMovie };
     }
     case "SET_DISPLAY_INDEX":
       return { ...state, currentIndex: action.indexNumber };
@@ -77,10 +90,13 @@ function reducer(state: GameState, action: GameAction) {
   }
 }
 
+
+
 export const Game = () => {
-  const movie: Movie = Route.useLoaderData();
+  const game: GameType | null = Route.useLoaderData();
   const [state, dispatch] = useReducer(reducer, {
-    answer: movie.name,
+    movieAnswer: game?.movie,
+    movieGuess: null,
     input: "",
     gameWon: false,
     gameLost: false,
@@ -88,9 +104,10 @@ export const Game = () => {
     currentIndex: 0,
   });
 
+  const { movies } = useFetchMovies(state.input);
   const gameOver = state.gameWon || state.gameLost;
   const maxDisplayedHint = state.guesses.length + 1;
-
+  console.log(state);
   return (
     <Box
       sx={{
@@ -133,7 +150,7 @@ export const Game = () => {
             }}
             direction="row"
           >
-            {movie.genres.map((genre) => (
+            {game?.movie?.genres.map((genre) => (
               <Chip key={genre} sx={{ ml: 1 }} label={genre}></Chip>
             ))}
           </Stack>
@@ -145,7 +162,7 @@ export const Game = () => {
               visibility:
                 maxDisplayedHint >= 5 || state.gameWon ? "visible" : "hidden",
             }}
-            label={`Release year : ${movie.releaseYear}`}
+            label={`Release year: ${new Date(game.movie.releaseDate).getFullYear()}`}
           />
           <Paper square={false} elevation={20}>
             <Box
@@ -164,37 +181,70 @@ export const Game = () => {
                       variant="h3"
                       color="error"
                     >
-                      {" "}
                       GAME OVER
                     </Typography>
-                    <Typography variant="h6">
-                      The correct movie was {movie.name}
+                    <Typography
+                      gutterBottom
+                      sx={{ ...centeredFlex }}
+                      variant="h6"
+                    >
+                      The correct movie was {game?.movie?.title}
                     </Typography>
+                    <Box sx={{...centeredFlex}}>
+                    <img
+                      loading="lazy"
+                      src={game?.movie?.poster}
+                      alt="Movie Poster"
+                      style={{
+                        ...centeredFlex,
+                        width: "75%",
+                        height: "auto",
+                        display: "block",
+                        filter: "drop-shadow(0 0 100px black)",
+                        borderRadius: "10px",
+                      }}
+                    />
+                    </Box>
                   </Box>
                 )}
                 {state.gameWon && (
                   <Box pb={2}>
                     <Typography
+                      gutterBottom
                       sx={{ ...centeredFlex }}
                       variant="h3"
                       color="success"
                     >
-                      {" "}
                       Congratulation
                     </Typography>
-                    <Typography variant="h6">
-                      The correct movie was {movie.name}
+                    <Typography sx={{ ...centeredFlex }} variant="h6">
+                      The correct movie was {game?.movie?.title}
                     </Typography>
+                    <img
+                      loading="lazy"
+                      src={game?.movie?.poster}
+                      alt="Movie Poster"
+                      style={{
+                        width: "100%",
+                        height: "auto",
+                        display: "block",
+                        filter: "drop-shadow(0 0 100px black)",
+                        borderRadius: "10px",
+                      }}
+                    />
                   </Box>
                 )}
-                <Typography sx={{ ...centeredFlex }} variant="h6">
+                <Typography
+                  sx={{wordBreak: "break-word", whiteSpace: "pre-wrap" }}
+                  variant="h6"
+                >
                   {
-                    movie.reviews.find(
+                    game?.reviews.find(
                       (review) => review.hintNumber === state.currentIndex + 1
-                    )?.review
+                    )?.reviewText
                   }
                 </Typography>
-              </Stack>{" "}
+              </Stack>
             </Box>
             <Box
               padding={5}
@@ -262,18 +312,37 @@ export const Game = () => {
         <Box pt={2}>
           <Stack direction="column">
             <Stack spacing={-4} direction="column">
-              <TextField
+              <Autocomplete
                 sx={{ width: "100%", height: 100 }}
-                variant="outlined"
-                label="Movie Name"
-                value={state.input}
+                options={movies}
                 disabled={gameOver}
-                onChange={(e) =>
-                  dispatch({ type: "SET_INPUT", input: e.target.value })
+                value={state.movieGuess}
+                getOptionLabel={(option) => option.title}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                onChange={(e, newInputValue) =>
+                  dispatch({
+                    type: "SET_SELECTED_MOVIE",
+                    selectedMovie: newInputValue,
+                  })
                 }
+                slotProps={{
+                  listbox: {
+                    sx: {
+                      maxHeight: 240, // limit total visible options height
+                      overflowY: "auto", // enable scroll only here
+                    },
+                  },
+                }}
+                inputValue={state.input}
+                onInputChange={(e, newInputValue) =>
+                  dispatch({ type: "SET_INPUT", input: newInputValue })
+                }
+                renderInput={(params) => (
+                  <TextField label="movies" {...params} />
+                )}
               />
               <Button
-                disabled={gameOver}
+                disabled={gameOver || state.movieGuess === null}
                 onClick={() => dispatch({ type: "SUBMIT" })}
                 variant="contained"
               >
@@ -281,29 +350,32 @@ export const Game = () => {
               </Button>
             </Stack>
             <List>
-              {state.guesses.map((guess, index) => {
-                const IconComponent = guess.guessSuccess
-                  ? CheckCircleIcon
-                  : HighlightOffIcon;
-                const iconColor = guess.guessSuccess
-                  ? "success.main"
-                  : "error.main";
+              {state.guesses
+                .slice()
+                .reverse()
+                .map((guess, index) => {
+                  const IconComponent = guess.guessSuccess
+                    ? CheckCircleIcon
+                    : HighlightOffIcon;
+                  const iconColor = guess.guessSuccess
+                    ? "success.main"
+                    : "error.main";
 
-                return (
-                  <ListItem
-                    key={index}
-                    sx={{
-                      bgcolor: "background.paper",
-                      outline: "black",
-                    }}
-                  >
-                    <ListItemIcon sx={{ color: iconColor }}>
-                      <IconComponent />
-                    </ListItemIcon>
-                    <ListItemText>{guess.guessName}</ListItemText>
-                  </ListItem>
-                );
-              })}
+                  return (
+                    <ListItem
+                      key={index}
+                      sx={{
+                        bgcolor: "background.paper",
+                        outline: "black",
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: iconColor }}>
+                        <IconComponent />
+                      </ListItemIcon>
+                      <ListItemText>{guess.guessName}</ListItemText>
+                    </ListItem>
+                  );
+                })}
             </List>
           </Stack>
         </Box>
