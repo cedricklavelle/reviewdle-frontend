@@ -17,7 +17,6 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import { useReducer} from "react";
 
-import { Movie } from "~/types/movie";
 import { GameState, Guess } from "~/types/gameState";
 import useFetchMovies from "~/hooks/useFetchMovies";
 import { GameAction } from "~/types/gameAction";
@@ -197,7 +196,7 @@ export const Game = () => {
                       alt="Movie Poster"
                       style={{
                         ...centeredFlex,
-                        width: "75%",
+                        width: "80%",
                         height: "auto",
                         display: "block",
                         filter: "drop-shadow(0 0 100px black)",
@@ -328,8 +327,8 @@ export const Game = () => {
                 slotProps={{
                   listbox: {
                     sx: {
-                      maxHeight: 240, // limit total visible options height
-                      overflowY: "auto", // enable scroll only here
+                      maxHeight: 240, 
+                      overflowY: "auto",
                     },
                   },
                 }}
