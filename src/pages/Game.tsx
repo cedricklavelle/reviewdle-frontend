@@ -22,6 +22,7 @@ import useFetchMovies from "~/hooks/useFetchMovies";
 import { GameAction } from "~/types/gameAction";
 import { Route } from "~/routes/archives/$gameId";
 import { Game as GameType } from "~/types/game";
+import { IndexPicker } from "~/components/IndexPicker";
 
 const centeredFlex = {
   display: "flex",
@@ -70,7 +71,7 @@ function reducer(state: GameState, action: GameAction) {
       return {
         ...state,
         guesses: guesses,
-        currentIndex: gameLost ? state.currentIndex : guesses.length,
+        currentIndex: gameLost ? state.currentIndex : guesses.length + 1,
         gameLost: gameLost,
         movieGuess: null,
         input: "",
@@ -100,7 +101,7 @@ export const Game = () => {
     gameWon: false,
     gameLost: false,
     guesses: [],
-    currentIndex: 0,
+    currentIndex: 1,
   });
 
   const { movies } = useFetchMovies(state.input);
@@ -239,7 +240,7 @@ export const Game = () => {
                 >
                   {
                     game?.reviews.find(
-                      (review) => review.hintNumber === state.currentIndex + 1
+                      (review) => review.hintNumber === state.currentIndex
                     )?.reviewText
                   }
                 </Typography>
@@ -252,50 +253,8 @@ export const Game = () => {
               }}
             >
               <Stack spacing={2} direction="row">
-                <Button
-                  onClick={() =>
-                    dispatch({ type: "SET_DISPLAY_INDEX", indexNumber: 0 })
-                  }
-                  variant="contained"
-                >
-                  1
-                </Button>
-                <Button
-                  disabled={maxDisplayedHint < 2 && !state.gameWon}
-                  onClick={() =>
-                    dispatch({ type: "SET_DISPLAY_INDEX", indexNumber: 1 })
-                  }
-                  variant="contained"
-                >
-                  2
-                </Button>
-                <Button
-                  onClick={() =>
-                    dispatch({ type: "SET_DISPLAY_INDEX", indexNumber: 2 })
-                  }
-                  disabled={maxDisplayedHint < 3 && !state.gameWon}
-                  variant="contained"
-                >
-                  3
-                </Button>
-                <Button
-                  onClick={() =>
-                    dispatch({ type: "SET_DISPLAY_INDEX", indexNumber: 3 })
-                  }
-                  disabled={maxDisplayedHint < 4 && !state.gameWon}
-                  variant="contained"
-                >
-                  4
-                </Button>
-                <Button
-                  onClick={() =>
-                    dispatch({ type: "SET_DISPLAY_INDEX", indexNumber: 4 })
-                  }
-                  disabled={maxDisplayedHint < 5 && !state.gameWon}
-                  variant="contained"
-                >
-                  5
-                </Button>
+                <IndexPicker handleIndexClick={(reviewIndex: number) => dispatch({type:"SET_DISPLAY_INDEX", indexNumber: reviewIndex})} reviewIndex={state.currentIndex} maxDisplayedHint={maxDisplayedHint} disableButton={gameOver}>                 
+                </IndexPicker>
                 <Button
                   onClick={() => dispatch({ type: "SKIP" })}
                   disabled={gameOver}

@@ -18,6 +18,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 import { Review } from "~/types/review";
+import { IndexPicker } from "~/components/IndexPicker";
 
 const AddGame = () => {
   const [movieNameInput, setMovieNameInput] = useState("");
@@ -241,46 +242,7 @@ const AddGame = () => {
             >
               <Stack direction="column">
                 <Stack spacing={2} direction="row" pb={4}>
-                  <Button
-                    onClick={() => setReviewIndex(1)}
-                    variant="contained"
-                    value={reviewIndex}
-                    color={reviewIndex === 1 ? "success" : "primary"}
-                  >
-                    1
-                  </Button>
-                  <Button
-                    onClick={() => setReviewIndex(2)}
-                    variant="contained"
-                    value={reviewIndex}
-                    color={reviewIndex === 2 ? "success" : "primary"}
-                  >
-                    2
-                  </Button>
-                  <Button
-                    onClick={() => setReviewIndex(3)}
-                    variant="contained"
-                    value={reviewIndex}
-                    color={reviewIndex === 3 ? "success" : "primary"}
-                  >
-                    3
-                  </Button>
-                  <Button
-                    onClick={() => setReviewIndex(4)}
-                    variant="contained"
-                    value={reviewIndex}
-                    color={reviewIndex === 4 ? "success" : "primary"}
-                  >
-                    4
-                  </Button>
-                  <Button
-                    onClick={() => setReviewIndex(5)}
-                    variant="contained"
-                    value={reviewIndex}
-                    color={reviewIndex === 5 ? "success" : "primary"}
-                  >
-                    5
-                  </Button>
+                  <IndexPicker handleIndexClick={setReviewIndex} reviewIndex={reviewIndex}></IndexPicker>
                 </Stack>
                 <Stack>
                   <Box
