@@ -41,8 +41,7 @@ export const Game = () => {
   return (
     <Box
       sx={{
-        display: "flex",
-        justifyContent: "center",
+        ...centeredFlex,
         pt: 10,
       }}
     >
