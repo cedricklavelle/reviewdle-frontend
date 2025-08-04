@@ -14,15 +14,11 @@ import {
 } from "@mui/material";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-
-import { useReducer} from "react";
-
-import { GameState, Guess } from "~/types/gameState";
 import useFetchMovies from "~/hooks/useFetchMovies";
-import { GameAction } from "~/types/gameAction";
 import { Route } from "~/routes/archives/$gameId";
 import { Game as GameType } from "~/types/game";
 import { IndexPicker } from "~/components/IndexPicker";
+import { useReviewdleGameState } from "~/hooks/useReviewdleGameState";
 
 const centeredFlex = {
   display: "flex",
@@ -34,75 +30,9 @@ const hintPlacement = {
   top: 8,
 };
 
-const MAX_GUESSES = 5;
-
-function reducer(state: GameState, action: GameAction) {
-  const { type } = action;
-
-  switch (type) {
-    case "SUBMIT": {
-      const movieGuess = state.movieGuess;
-      const newGuess: Guess = {
-        guessName: movieGuess ? movieGuess.title : "Skipped",
-        guessSuccess: movieGuess
-          ? state.movieAnswer?.id === movieGuess.id
-          : false,
-      };
-      const guesses = [...state.guesses, newGuess];
-      return {
-        ...state,
-        gameWon: newGuess.guessSuccess,
-        gameLost: guesses.length >= MAX_GUESSES && !newGuess.guessSuccess,
-        guesses: guesses,
-        input: "",
-        movieGuess: null,
-        currentIndex: newGuess.guessSuccess
-          ? state.currentIndex
-          : guesses.length,
-      };
-    }
-    case "SKIP": {
-      const newGuess: Guess = {
-        guessName: "Skipped",
-        guessSuccess: state.gameWon,
-      };
-      const guesses = [...state.guesses, newGuess];
-      const gameLost = guesses.length >= MAX_GUESSES
-      return {
-        ...state,
-        guesses: guesses,
-        currentIndex: gameLost ? state.currentIndex : guesses.length + 1,
-        gameLost: gameLost,
-        movieGuess: null,
-        input: "",
-      };
-    }
-    case "SET_INPUT": {
-      return { ...state, input: action.input };
-    }
-    case "SET_SELECTED_MOVIE": {
-      return { ...state, movieGuess: action.selectedMovie };
-    }
-    case "SET_DISPLAY_INDEX":
-      return { ...state, currentIndex: action.indexNumber };
-    default:
-      return state;
-  }
-}
-
-
-
 export const Game = () => {
-  const game: GameType | null = Route.useLoaderData();
-  const [state, dispatch] = useReducer(reducer, {
-    movieAnswer: game?.movie,
-    movieGuess: null,
-    input: "",
-    gameWon: false,
-    gameLost: false,
-    guesses: [],
-    currentIndex: 1,
-  });
+  const game: GameType = Route.useLoaderData();
+  const {state, dispatch} = useReviewdleGameState(game)
 
   const { movies } = useFetchMovies(state.input);
   const gameOver = state.gameWon || state.gameLost;
