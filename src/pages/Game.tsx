@@ -32,7 +32,7 @@ const hintPlacement = {
 
 export const Game = () => {
   const game: GameType = Route.useLoaderData();
-  const {state, dispatch} = useReviewdleGameState(game)
+  const { state, dispatch } = useReviewdleGameState(game);
 
   const { movies } = useFetchMovies(state.input);
   const gameOver = state.gameWon || state.gameLost;
@@ -42,20 +42,18 @@ export const Game = () => {
     <Box
       sx={{
         ...centeredFlex,
-        pt: 10,
+        pt: 5,
       }}
     >
       <Stack
         sx={{
           ...centeredFlex,
           pt: 1,
+          alignItems: "center",
         }}
-        direction={"column"}
+        direction="column"
       >
         <Typography
-          sx={{
-            ...centeredFlex,
-          }}
           variant="h2"
         >
           Daily game
@@ -95,7 +93,7 @@ export const Game = () => {
           />
           <Paper square={false} elevation={20}>
             <Box
-              pt={10}
+              pt={5}
               pl={2}
               pr={2}
               sx={{
@@ -103,20 +101,18 @@ export const Game = () => {
               }}
             >
               <Stack direction="column">
-                {state.gameLost && (
-                  <Box pb={2}>
+                  <Box pb={2} >
+                    {gameOver && (
+                      <>
                     <Typography
-                      sx={{ ...centeredFlex }}
+
+                      sx={{ ...centeredFlex, pt:1 }}
                       variant="h3"
-                      color="error"
+                      color={state.gameWon ? "success" : "error"}
                     >
-                      GAME OVER
+                      {state.gameWon ? "Congratulation" : "Game Over" }
                     </Typography>
-                    <Typography
-                      gutterBottom
-                      sx={{ ...centeredFlex }}
-                      variant="h6"
-                    >
+                    <Typography sx={{ ...centeredFlex }} variant="h6">
                       The correct movie was {game?.movie?.title}
                     </Typography>
                     <Box sx={{...centeredFlex}}>
@@ -125,46 +121,16 @@ export const Game = () => {
                       src={game?.movie?.poster}
                       alt="Movie Poster"
                       style={{
-                        ...centeredFlex,
-                        width: "80%",
+                        justifyContent: "center",
+                        width: "75%",
                         height: "auto",
                         display: "block",
-                        filter: "drop-shadow(0 0 100px black)",
                         borderRadius: "10px",
                       }}
-                    />
-                    </Box>
+                    /></Box></>)}
                   </Box>
-                )}
-                {state.gameWon && (
-                  <Box pb={2}>
-                    <Typography
-                      gutterBottom
-                      sx={{ ...centeredFlex }}
-                      variant="h3"
-                      color="success"
-                    >
-                      Congratulation
-                    </Typography>
-                    <Typography sx={{ ...centeredFlex }} variant="h6">
-                      The correct movie was {game?.movie?.title}
-                    </Typography>
-                    <img
-                      loading="lazy"
-                      src={game?.movie?.poster}
-                      alt="Movie Poster"
-                      style={{
-                        width: "100%",
-                        height: "auto",
-                        display: "block",
-                        filter: "drop-shadow(0 0 100px black)",
-                        borderRadius: "10px",
-                      }}
-                    />
-                  </Box>
-                )}
                 <Typography
-                  sx={{wordBreak: "break-word", whiteSpace: "pre-wrap" }}
+                  sx={{ wordBreak: "break-word", whiteSpace: "pre-wrap" }}
                   variant="h6"
                 >
                   {
@@ -182,8 +148,18 @@ export const Game = () => {
               }}
             >
               <Stack spacing={2} direction="row">
-                <IndexPicker handleIndexClick={(reviewIndex: number) => dispatch({type:"SET_DISPLAY_INDEX", indexNumber: reviewIndex})} reviewIndex={state.currentIndex} maxDisplayedHint={maxDisplayedHint} disableButton={gameOver}>                 
-                </IndexPicker>
+                <IndexPicker
+                  handleIndexClick={(reviewIndex: number) =>
+                    dispatch({
+                      type: "SET_DISPLAY_INDEX",
+                      indexNumber: reviewIndex,
+                    })
+                  }
+                  winningIndex={state.guesses.findIndex((guess) => guess.guessSuccess) + 1}
+                  reviewIndex={state.currentIndex}
+                  maxDisplayedHint={maxDisplayedHint}
+                  disableButton={gameOver}
+                ></IndexPicker>
                 <Button
                   onClick={() => dispatch({ type: "SKIP" })}
                   disabled={gameOver}
@@ -196,75 +172,77 @@ export const Game = () => {
             </Box>
           </Paper>
         </Box>
-        <Box pt={2}>
-          <Stack direction="column">
-            <Stack spacing={-4} direction="column">
-              <Autocomplete
-                sx={{ width: "100%", height: 100 }}
-                options={movies}
-                disabled={gameOver}
-                value={state.movieGuess}
-                getOptionLabel={(option) => option.title}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
-                onChange={(e, newInputValue) =>
-                  dispatch({
-                    type: "SET_SELECTED_MOVIE",
-                    selectedMovie: newInputValue,
-                  })
-                }
-                slotProps={{
-                  listbox: {
-                    sx: {
-                      maxHeight: 240, 
-                      overflowY: "auto",
-                    },
-                  },
-                }}
-                inputValue={state.input}
-                onInputChange={(e, newInputValue) =>
-                  dispatch({ type: "SET_INPUT", input: newInputValue })
-                }
-                renderInput={(params) => (
-                  <TextField label="movies" {...params} />
-                )}
-              />
-              <Button
-                disabled={gameOver || state.movieGuess === null}
-                onClick={() => dispatch({ type: "SUBMIT" })}
-                variant="contained"
-              >
-                Submit
-              </Button>
-            </Stack>
-            <List>
-              {state.guesses
-                .slice()
-                .reverse()
-                .map((guess, index) => {
-                  const IconComponent = guess.guessSuccess
-                    ? CheckCircleIcon
-                    : HighlightOffIcon;
-                  const iconColor = guess.guessSuccess
-                    ? "success.main"
-                    : "error.main";
+        <Box
+          width="100%"
+          pt={2}
+          sx={{
+            "& > *": {
+              width: "100%",
+            },
+          }}
+        >
+          <Autocomplete
+            sx={{ width: "100%", mb:2}}
+            options={movies}
+            disabled={gameOver}
+            value={state.movieGuess}
+            getOptionLabel={(option) => option.title}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            onChange={(e, newInputValue) =>
+              dispatch({
+                type: "SET_SELECTED_MOVIE",
+                selectedMovie: newInputValue,
+              })
+            }
+            slotProps={{
+              listbox: {
+                sx: {
+                  maxHeight: 240,
+                  overflowY: "auto",
+                },
+              },
+            }}
+            inputValue={state.input}
+            onInputChange={(e, newInputValue) =>
+              dispatch({ type: "SET_INPUT", input: newInputValue })
+            }
+            renderInput={(params) => <TextField label="movies" {...params} />}
+          />
+          <Button
+            disabled={gameOver || state.movieGuess === null}
+            onClick={() => dispatch({ type: "SUBMIT" })}
+            variant="contained"
+          >
+            Submit
+          </Button>
+          <List>
+            {state.guesses
+              .slice()
+              .reverse()
+              .map((guess, index) => {
+                const IconComponent = guess.guessSuccess
+                  ? CheckCircleIcon
+                  : HighlightOffIcon;
+                const iconColor = guess.guessSuccess
+                  ? "success.main"
+                  : "error.main";
 
-                  return (
-                    <ListItem
-                      key={index}
-                      sx={{
-                        bgcolor: "background.paper",
-                        outline: "black",
-                      }}
-                    >
-                      <ListItemIcon sx={{ color: iconColor }}>
-                        <IconComponent />
-                      </ListItemIcon>
-                      <ListItemText>{guess.guessName}</ListItemText>
-                    </ListItem>
-                  );
-                })}
-            </List>
-          </Stack>
+                return (
+                  <ListItem
+                    key={index}
+                    sx={{
+                      bgcolor: "background.paper",
+                      outline: "black",
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: iconColor }}>
+                      <IconComponent />
+                    </ListItemIcon>
+                    <ListItemText>{guess.guessName}</ListItemText>
+                  </ListItem>
+                );
+              })}
+          </List>
         </Box>
       </Stack>
     </Box>
