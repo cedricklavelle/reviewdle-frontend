@@ -8,6 +8,8 @@ type IndexPickerProps = {
   disableButton?: boolean | null;
   winningIndex?: number | null
 };
+
+
 export const IndexPicker: React.FC<IndexPickerProps> = ({
   handleIndexClick,
   reviewIndex,
@@ -15,6 +17,7 @@ export const IndexPicker: React.FC<IndexPickerProps> = ({
   disableButton = false,
   winningIndex
 }) => {
+    
   return (
     <>
       {[1, 2, 3, 4, 5].map((index) => (

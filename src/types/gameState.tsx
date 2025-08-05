@@ -9,8 +9,8 @@ export type GameState = {
   movieAnswer: Movie | null | undefined ;
   movieGuess: Movie | null ;
   input: string;
-  gameWon: boolean;
-  gameLost: boolean;
+  isGameWon: boolean;
+  isGameLost: boolean;
   guesses: Guess[];
   currentIndex: number;
 };

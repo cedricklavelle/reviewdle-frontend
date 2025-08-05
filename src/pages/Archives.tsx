@@ -31,7 +31,6 @@ export const Archives = () => {
       <Stack direction="column">
         <Box sx={{ ...centeredFlex }}>
           <Typography variant="h2" gutterBottom mt={4}>
-            {" "}
             Archive
           </Typography>
         </Box>
