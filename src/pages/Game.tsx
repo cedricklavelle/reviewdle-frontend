@@ -37,7 +37,6 @@ export const Game = () => {
   const { movies } = useFetchMovies(state.input);
   const gameOver = state.gameWon || state.gameLost;
   const maxDisplayedHint = state.guesses.length + 1;
-  console.log(state);
   return (
     <Box
       sx={{
