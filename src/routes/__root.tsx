@@ -1,36 +1,39 @@
 /// <reference types="vite/client" />
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import {
   HeadContent,
   Outlet,
   Scripts,
   createRootRoute,
-} from '@tanstack/react-router'
-import { CacheProvider } from '@emotion/react'
-import { CssBaseline, ThemeProvider } from '@mui/material'
-import createCache from '@emotion/cache'
-import fontsourceVariableRobotoCss from '@fontsource-variable/roboto?url'
-import React from 'react'
-import { Header } from '~/components/Header'
-import darkTheme from '~/themes/darkTheme'
+} from "@tanstack/react-router";
+import { CacheProvider } from "@emotion/react";
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import createCache from "@emotion/cache";
+import fontsourceVariableRobotoCss from "@fontsource-variable/roboto?url";
+import React from "react";
+import { Header } from "~/components/Header";
+import darkTheme from "~/themes/darkTheme";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 export const Route = createRootRoute({
   head: () => ({
-    links: [{ rel: 'stylesheet', href: fontsourceVariableRobotoCss }],
+    links: [{ rel: "stylesheet", href: fontsourceVariableRobotoCss }],
   }),
   component: RootComponent,
-})
+});
 
 function RootComponent() {
   return (
     <RootDocument>
       <Outlet />
     </RootDocument>
-  )
+  );
 }
 
 function Providers({ children }: { children: React.ReactNode }) {
-  const emotionCache = createCache({ key: 'css' })
+  const emotionCache = createCache({ key: "css" });
 
   return (
     <CacheProvider value={emotionCache}>
@@ -39,7 +42,7 @@ function Providers({ children }: { children: React.ReactNode }) {
         {children}
       </ThemeProvider>
     </CacheProvider>
-  )
+  );
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -50,16 +53,16 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <Providers>
-          <Header />
-
+          <QueryClientProvider client={queryClient}>
+            <Header />
 
             {children}
-
+          </QueryClientProvider>
         </Providers>
 
         <TanStackRouterDevtools position="bottom-right" />
         <Scripts />
       </body>
     </html>
-  )
+  );
 }

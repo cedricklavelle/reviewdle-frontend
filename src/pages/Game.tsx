@@ -17,6 +17,9 @@ import { ReviewdleReviewDisplay } from "~/components/ReviewdleReviewDisplay";
 import { ReviewdleGuessDisplay } from "~/components/ReviewdleGuessDisplay";
 import { ReviewdleMovieSubmitter } from "~/components/ReviewdleMovieSubmitter";
 import { Movie } from "~/types/movie";
+import useLocalStorage from "~/hooks/useLocalStorage";
+import { GameState } from "~/types/gameState";
+import { useEffect } from "react";
 
 const centeredFlex = {
   display: "flex",
@@ -25,11 +28,30 @@ const centeredFlex = {
 
 export const Game = () => {
   const game: GameType = Route.useLoaderData();
-  const { state, dispatch } = useReviewdleGameState(game);
+  const { setItem, getItem } = useLocalStorage(`reviewdle-${game.id}`);
+
+
+
+  const initialState: GameState = getItem() ?? {
+    movieAnswer: game.movie,
+    gameId: game.id,
+    movieGuess: null,
+    input: "",
+    isGameWon: false,
+    isGameLost: false,
+    guesses: [],
+    currentIndex: 1,
+  };
+  const { state, dispatch } = useReviewdleGameState(initialState);
+
+  useEffect(() => {
+      setItem(state)
+  },[state])
 
   const { movies } = useFetchMovies(state.input);
   const gameOver = state.isGameWon || state.isGameLost;
   const maxDisplayedHint = state.guesses.length + 1;
+
   return (
     <Box
       sx={{
@@ -37,6 +59,7 @@ export const Game = () => {
         pt: 5,
       }}
     >
+      <p>{state.input}</p>
       <Stack
         sx={{
           ...centeredFlex,
@@ -123,17 +146,28 @@ export const Game = () => {
             },
           }}
         >
-          <ReviewdleMovieSubmitter movies={movies} gameOver={gameOver} gameState={state} handleSelectMovie={(newInputValue: Movie | null)=> dispatch({
-            type:"SET_SELECTED_MOVIE",
-            selectedMovie: newInputValue
-          })} handleInputChange={(newInputValue: string) => dispatch({
-            type:"SET_INPUT",
-            input: newInputValue
-          })} handleSubmit={() => dispatch({
-            type: "SUBMIT"
-          })}>
-
-          </ReviewdleMovieSubmitter>
+          <ReviewdleMovieSubmitter
+            movies={movies}
+            gameOver={gameOver} 
+            gameState={state}
+            handleSelectMovie={(newInputValue: Movie | null) =>
+              dispatch({
+                type: "SET_SELECTED_MOVIE",
+                selectedMovie: newInputValue,
+              })
+            }
+            handleInputChange={(newInputValue: string) =>
+              dispatch({
+                type: "SET_INPUT",
+                input: newInputValue,
+              })
+            }
+            handleSubmit={() =>
+              dispatch({
+                type: "SUBMIT",
+              })
+            }
+          ></ReviewdleMovieSubmitter>
           <ReviewdleGuessDisplay
             guesses={state.guesses}
           ></ReviewdleGuessDisplay>

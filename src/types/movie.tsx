@@ -1,12 +1,10 @@
 import { Review } from "./review";
 
 export type Movie = {
-  id: string;
+  id: number;
   title: string;
   poster: string;
-  dailyDate: string;
   genres: string[];
-  releaseDate: number;
+  releaseDate: string;
   letterboxdScore: number;
-  reviews: Review[];
 };

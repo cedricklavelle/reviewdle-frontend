@@ -8,6 +8,7 @@ export type Guess = {
 export type GameState = {
   movieAnswer: Movie | null | undefined ;
   movieGuess: Movie | null ;
+  gameId: number | null
   input: string;
   isGameWon: boolean;
   isGameLost: boolean;
