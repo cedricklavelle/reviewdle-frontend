@@ -1,11 +1,4 @@
-import {
-  Box,
-  Grid,
-  IconButton,
-  Paper,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, Grid, IconButton, Paper, Stack, Typography } from "@mui/material";
 import "dayjs/locale/de";
 import { Game } from "~/types/game";
 import dayjs, { Dayjs } from "dayjs";
@@ -22,12 +15,10 @@ export const Archives = () => {
 
   const startingMonth = dayjs("2025-07-01");
 
-
   const centeredFlex = {
     display: "flex",
     justifyContent: "center",
   };
-
 
   const fetchDays = async (startDate: Dayjs, endDate: Dayjs) => {
     const response = await fetch(
@@ -62,8 +53,7 @@ export const Archives = () => {
       <Stack sx={{ ...centeredFlex, pt: 3 }} direction="column">
         <Box sx={{ ...centeredFlex, pt: 3 }}>
           <Grid height={300} width={500} container columns={7} spacing={2}>
-            <Grid size={6}></Grid>
-            <Grid size={1}>
+            <Grid size={7}>
               <Typography
                 variant="h6"
                 sx={{ display: "flex", justifyContent: "flex-end" }}
@@ -73,7 +63,7 @@ export const Archives = () => {
             </Grid>
             <Grid size={1}>
               <IconButton
-disabled={startingMonth.isSame(date, "month")}
+                disabled={startingMonth.isSame(date, "month")}
                 onClick={() => setDate(date.subtract(1, "month"))}
               >
                 <ArrowBackIcon></ArrowBackIcon>
@@ -115,11 +105,11 @@ disabled={startingMonth.isSame(date, "month")}
             )}
 
             {isLoading
-              ? [...Array(date.daysInMonth())]?.map((_ ,index) => (
+              ? [...Array(date.daysInMonth())]?.map((_, index) => (
                   <Grid key={index} size={1}>
                     <Day
-                      game={ {
-                        date: date.set('date', index + 1).format("YYYY-MM-DD")
+                      game={{
+                        date: date.set("date", index + 1).format("YYYY-MM-DD"),
                       }}
                     />
                   </Grid>
