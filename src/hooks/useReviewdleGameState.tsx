@@ -20,28 +20,28 @@ function reducer(state: GameState, action: GameAction) {
         const guesses = [...state.guesses, newGuess];
         return {
           ...state,
-          gameWon: newGuess.guessSuccess,
-          gameLost: guesses.length >= MAX_GUESSES && !newGuess.guessSuccess,
+          isGameWon: newGuess.guessSuccess,
+          isGameLost: guesses.length >= MAX_GUESSES && !newGuess.guessSuccess,
           guesses: guesses,
           input: "",
           movieGuess: null,
           currentIndex: newGuess.guessSuccess
             ? state.currentIndex
-            : guesses.length,
+            : guesses.length + 1,
         };
       }
       case "SKIP": {
         const newGuess: Guess = {
           guessName: "Skipped",
-          guessSuccess: state.gameWon,
+          guessSuccess: state.isGameWon,
         };
         const guesses = [...state.guesses, newGuess];
-        const gameLost = guesses.length >= MAX_GUESSES
+        const isGameLost = guesses.length >= MAX_GUESSES
         return {
           ...state,
           guesses: guesses,
-          currentIndex: gameLost ? state.currentIndex : guesses.length + 1,
-          gameLost: gameLost,
+          currentIndex: isGameLost ? state.currentIndex : guesses.length + 1,
+          isGameLost: isGameLost,
           movieGuess: null,
           input: "",
         };
@@ -66,8 +66,8 @@ export function useReviewdleGameState(gamePlayed : Game) {
         movieAnswer: gamePlayed?.movie,
         movieGuess: null,
         input: "",
-        gameWon: false,
-        gameLost: false,
+        isGameWon: false,
+        isGameLost: false,
         guesses: [],
         currentIndex: 1,
       });

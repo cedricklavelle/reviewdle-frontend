@@ -2,32 +2,25 @@ import {
   Autocomplete,
   Box,
   Button,
-  Chip,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Paper,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
-import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import useFetchMovies from "~/hooks/useFetchMovies";
 import { Route } from "~/routes/archives/$gameId";
 import { Game as GameType } from "~/types/game";
 import { IndexPicker } from "~/components/IndexPicker";
 import { useReviewdleGameState } from "~/hooks/useReviewdleGameState";
+import { ReviewdleEndgameDisplay } from "~/components/ReviewdleEndgameDisplay";
+import { ReviewdleHintDisplay } from "~/components/ReviewdleHintDisplay";
+import { ReviewdleReviewDisplay } from "~/components/ReviewdleReviewDisplay";
+import { ReviewdleGuessDisplay } from "~/components/ReviewdleGuessDisplay";
+import { ReviewdleMovieSubmitter } from "~/components/ReviewdleMovieSubmitter";
+import { Movie } from "~/types/movie";
 
 const centeredFlex = {
   display: "flex",
   justifyContent: "center",
-};
-
-const hintPlacement = {
-  position: "absolute",
-  top: 8,
 };
 
 export const Game = () => {
@@ -35,7 +28,7 @@ export const Game = () => {
   const { state, dispatch } = useReviewdleGameState(game);
 
   const { movies } = useFetchMovies(state.input);
-  const gameOver = state.gameWon || state.gameLost;
+  const gameOver = state.isGameWon || state.isGameLost;
   const maxDisplayedHint = state.guesses.length + 1;
   return (
     <Box
@@ -52,11 +45,7 @@ export const Game = () => {
         }}
         direction="column"
       >
-        <Typography
-          variant="h2"
-        >
-          Daily game
-        </Typography>
+        <Typography variant="h2">Daily game</Typography>
         <Box
           sx={{
             position: "relative",
@@ -67,109 +56,63 @@ export const Game = () => {
             maxWidth: 500,
           }}
         >
-          <Stack
-            visibility="hidden"
+          <ReviewdleHintDisplay
+            reviewNumberRevealed={maxDisplayedHint}
+            isGameWon={state.isGameWon}
+            movie={game.movie}
+          ></ReviewdleHintDisplay>
+          <Box
+            mt={8}
+            pl={2}
+            pr={2}
             sx={{
-              ...hintPlacement,
-              visibility:
-                maxDisplayedHint >= 3 || state.gameWon ? "visible" : "hidden",
+              ...centeredFlex,
             }}
-            direction="row"
           >
-            {game?.movie?.genres.map((genre) => (
-              <Chip key={genre} sx={{ ml: 1 }} label={genre}></Chip>
-            ))}
-          </Stack>
-          <Chip
-            key="releaseYear"
+            <Stack spacing={2} direction="column">
+              {gameOver && (
+                <ReviewdleEndgameDisplay
+                  game={game}
+                  gameState={state}
+                ></ReviewdleEndgameDisplay>
+              )}
+              <ReviewdleReviewDisplay
+                reviews={game.reviews}
+                index={state.currentIndex}
+              ></ReviewdleReviewDisplay>
+            </Stack>
+          </Box>
+          <Box
+            padding={5}
             sx={{
-              ...hintPlacement,
-              right: 8,
-              visibility:
-                maxDisplayedHint >= 5 || state.gameWon ? "visible" : "hidden",
+              ...centeredFlex,
             }}
-            label={`Release year: ${new Date(game.movie.releaseDate).getFullYear()}`}
-          />
-          <Paper square={false} elevation={20}>
-            <Box
-              pt={5}
-              pl={2}
-              pr={2}
-              sx={{
-                ...centeredFlex,
-              }}
-            >
-              <Stack direction="column">
-                  <Box pb={2} >
-                    {gameOver && (
-                      <>
-                    <Typography
-
-                      sx={{ ...centeredFlex, pt:1 }}
-                      variant="h3"
-                      color={state.gameWon ? "success" : "error"}
-                    >
-                      {state.gameWon ? "Congratulation" : "Game Over" }
-                    </Typography>
-                    <Typography sx={{ ...centeredFlex }} variant="h6">
-                      The correct movie was {game?.movie?.title}
-                    </Typography>
-                    <Box sx={{...centeredFlex}}>
-                    <img
-                      loading="lazy"
-                      src={game?.movie?.poster}
-                      alt="Movie Poster"
-                      style={{
-                        justifyContent: "center",
-                        width: "75%",
-                        height: "auto",
-                        display: "block",
-                        borderRadius: "10px",
-                      }}
-                    /></Box></>)}
-                  </Box>
-                <Typography
-                  sx={{ wordBreak: "break-word", whiteSpace: "pre-wrap" }}
-                  variant="h6"
-                >
-                  {
-                    game?.reviews.find(
-                      (review) => review.hintNumber === state.currentIndex
-                    )?.reviewText
-                  }
-                </Typography>
-              </Stack>
-            </Box>
-            <Box
-              padding={5}
-              sx={{
-                ...centeredFlex,
-              }}
-            >
-              <Stack spacing={2} direction="row">
-                <IndexPicker
-                  handleIndexClick={(reviewIndex: number) =>
-                    dispatch({
-                      type: "SET_DISPLAY_INDEX",
-                      indexNumber: reviewIndex,
-                    })
-                  }
-                  winningIndex={state.guesses.findIndex((guess) => guess.guessSuccess) + 1}
-                  reviewIndex={state.currentIndex}
-                  maxDisplayedHint={maxDisplayedHint}
-                  disableButton={gameOver}
-                ></IndexPicker>
-                <Button
-                  onClick={() => dispatch({ type: "SKIP" })}
-                  disabled={gameOver}
-                  color="warning"
-                  variant="contained"
-                >
-                  Skip
-                </Button>
-              </Stack>
-            </Box>
-          </Paper>
+          >
+            <Stack spacing={2} direction="row">
+              <IndexPicker
+                handleIndexClick={(reviewIndex: number) =>
+                  dispatch({
+                    type: "SET_DISPLAY_INDEX",
+                    indexNumber: reviewIndex,
+                  })
+                }
+                winningIndex={
+                  state.guesses.findIndex((guess) => guess.guessSuccess) + 1
+                }
+                reviewIndex={state.currentIndex}
+                maxDisplayedHint={maxDisplayedHint}
+                disableButton={gameOver}
+              ></IndexPicker>
+              <Button
+                onClick={() => dispatch({ type: "SKIP" })}
+                disabled={gameOver}
+                color="warning"
+                variant="contained"
+              >
+                Skip
+              </Button>
+            </Stack>
+          </Box>
         </Box>
         <Box
           width="100%"
@@ -180,68 +123,20 @@ export const Game = () => {
             },
           }}
         >
-          <Autocomplete
-            sx={{ width: "100%", mb:2}}
-            options={movies}
-            disabled={gameOver}
-            value={state.movieGuess}
-            getOptionLabel={(option) => option.title}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            onChange={(e, newInputValue) =>
-              dispatch({
-                type: "SET_SELECTED_MOVIE",
-                selectedMovie: newInputValue,
-              })
-            }
-            slotProps={{
-              listbox: {
-                sx: {
-                  maxHeight: 240,
-                  overflowY: "auto",
-                },
-              },
-            }}
-            inputValue={state.input}
-            onInputChange={(e, newInputValue) =>
-              dispatch({ type: "SET_INPUT", input: newInputValue })
-            }
-            renderInput={(params) => <TextField label="movies" {...params} />}
-          />
-          <Button
-            disabled={gameOver || state.movieGuess === null}
-            onClick={() => dispatch({ type: "SUBMIT" })}
-            variant="contained"
-          >
-            Submit
-          </Button>
-          <List>
-            {state.guesses
-              .slice()
-              .reverse()
-              .map((guess, index) => {
-                const IconComponent = guess.guessSuccess
-                  ? CheckCircleIcon
-                  : HighlightOffIcon;
-                const iconColor = guess.guessSuccess
-                  ? "success.main"
-                  : "error.main";
+          <ReviewdleMovieSubmitter movies={movies} gameOver={gameOver} gameState={state} handleSelectMovie={(newInputValue: Movie | null)=> dispatch({
+            type:"SET_SELECTED_MOVIE",
+            selectedMovie: newInputValue
+          })} handleInputChange={(newInputValue: string) => dispatch({
+            type:"SET_INPUT",
+            input: newInputValue
+          })} handleSubmit={() => dispatch({
+            type: "SUBMIT"
+          })}>
 
-                return (
-                  <ListItem
-                    key={index}
-                    sx={{
-                      bgcolor: "background.paper",
-                      outline: "black",
-                    }}
-                  >
-                    <ListItemIcon sx={{ color: iconColor }}>
-                      <IconComponent />
-                    </ListItemIcon>
-                    <ListItemText>{guess.guessName}</ListItemText>
-                  </ListItem>
-                );
-              })}
-          </List>
+          </ReviewdleMovieSubmitter>
+          <ReviewdleGuessDisplay
+            guesses={state.guesses}
+          ></ReviewdleGuessDisplay>
         </Box>
       </Stack>
     </Box>
