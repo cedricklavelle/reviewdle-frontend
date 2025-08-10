@@ -59,7 +59,6 @@ export const Game = () => {
         pt: 5,
       }}
     >
-      <p>{state.input}</p>
       <Stack
         sx={{
           ...centeredFlex,

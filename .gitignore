@@ -143,3 +143,5 @@ vite.config.ts.timestamp-*
 
 # Tanstack
 .tanstack/
+
+src/__test__

@@ -31,7 +31,7 @@ const Day: React.FC<DayProps> = ({ game, dayNumber }) => {
         }
     }
   return (
-    <Button disabled={!game?.id || disableFuture === true && dayjs(game.date).isAfter(dayjs())} variant="contained" component={Link}
+    <Button disabled={!game?.id || disableFuture && dayjs(game.date).isAfter(dayjs())} variant="contained" component={Link}
     to={`/archives/${game?.id}`} sx={{
         backgroundColor: getBackgroundColor(),
         color: "White",

@@ -9,17 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ArchivesIndexRouteImport } from './routes/archives/index'
 import { Route as DailyAddRouteImport } from './routes/daily/add'
 import { Route as ArchivesGameIdRouteImport } from './routes/archives/$gameId'
 
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -43,14 +37,12 @@ const ArchivesGameIdRoute = ArchivesGameIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/archives/$gameId': typeof ArchivesGameIdRoute
   '/daily/add': typeof DailyAddRoute
   '/archives': typeof ArchivesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/archives/$gameId': typeof ArchivesGameIdRoute
   '/daily/add': typeof DailyAddRoute
   '/archives': typeof ArchivesIndexRoute
@@ -58,28 +50,20 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/archives/$gameId': typeof ArchivesGameIdRoute
   '/daily/add': typeof DailyAddRoute
   '/archives/': typeof ArchivesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/archives/$gameId' | '/daily/add' | '/archives'
+  fullPaths: '/' | '/archives/$gameId' | '/daily/add' | '/archives'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/archives/$gameId' | '/daily/add' | '/archives'
-  id:
-    | '__root__'
-    | '/'
-    | '/about'
-    | '/archives/$gameId'
-    | '/daily/add'
-    | '/archives/'
+  to: '/' | '/archives/$gameId' | '/daily/add' | '/archives'
+  id: '__root__' | '/' | '/archives/$gameId' | '/daily/add' | '/archives/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
   ArchivesGameIdRoute: typeof ArchivesGameIdRoute
   DailyAddRoute: typeof DailyAddRoute
   ArchivesIndexRoute: typeof ArchivesIndexRoute
@@ -87,13 +71,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -127,7 +104,6 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
   ArchivesGameIdRoute: ArchivesGameIdRoute,
   DailyAddRoute: DailyAddRoute,
   ArchivesIndexRoute: ArchivesIndexRoute,
