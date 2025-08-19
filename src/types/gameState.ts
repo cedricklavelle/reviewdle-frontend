@@ -1,7 +1,7 @@
 import { Movie } from "./movie";
 
 export type Guess = {
-  guessName: String;
+  guessName: string;
   guessSuccess: boolean;
 };
 

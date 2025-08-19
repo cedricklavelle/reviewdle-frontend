@@ -3,7 +3,7 @@ import { Game as GamePage } from '~/pages/Game'
 import { Game } from '~/types/game';
 import { Movie } from '~/types/movie';
 
-export const Route = createFileRoute('/archives/$gameId')({
+export const Route = createFileRoute('/reviewdle/$gameId')({
   component: GamePage,
   loader: async ({params}) => {
     const response = await fetch(`http://localhost:3005/games/reviewdle/${params.gameId}`);

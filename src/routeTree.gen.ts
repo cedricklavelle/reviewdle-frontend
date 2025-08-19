@@ -10,63 +10,116 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ArchivesIndexRouteImport } from './routes/archives/index'
-import { Route as DailyAddRouteImport } from './routes/daily/add'
-import { Route as ArchivesGameIdRouteImport } from './routes/archives/$gameId'
+import { Route as ReviewdleIndexRouteImport } from './routes/reviewdle/index'
+import { Route as LoginIndexRouteImport } from './routes/login/index'
+import { Route as ReviewdleGameIdRouteImport } from './routes/reviewdle/$gameId'
+import { Route as ReviewdleAdminIndexRouteImport } from './routes/reviewdle/admin/index'
+import { Route as ReviewdleAdminAddRouteImport } from './routes/reviewdle/admin/add'
+import { Route as ReviewdleAdminEditGameIdRouteImport } from './routes/reviewdle/admin/edit/$gameId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ArchivesIndexRoute = ArchivesIndexRouteImport.update({
-  id: '/archives/',
-  path: '/archives/',
+const ReviewdleIndexRoute = ReviewdleIndexRouteImport.update({
+  id: '/reviewdle/',
+  path: '/reviewdle/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DailyAddRoute = DailyAddRouteImport.update({
-  id: '/daily/add',
-  path: '/daily/add',
+const LoginIndexRoute = LoginIndexRouteImport.update({
+  id: '/login/',
+  path: '/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ArchivesGameIdRoute = ArchivesGameIdRouteImport.update({
-  id: '/archives/$gameId',
-  path: '/archives/$gameId',
+const ReviewdleGameIdRoute = ReviewdleGameIdRouteImport.update({
+  id: '/reviewdle/$gameId',
+  path: '/reviewdle/$gameId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReviewdleAdminIndexRoute = ReviewdleAdminIndexRouteImport.update({
+  id: '/reviewdle/admin/',
+  path: '/reviewdle/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReviewdleAdminAddRoute = ReviewdleAdminAddRouteImport.update({
+  id: '/reviewdle/admin/add',
+  path: '/reviewdle/admin/add',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReviewdleAdminEditGameIdRoute =
+  ReviewdleAdminEditGameIdRouteImport.update({
+    id: '/reviewdle/admin/edit/$gameId',
+    path: '/reviewdle/admin/edit/$gameId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/archives/$gameId': typeof ArchivesGameIdRoute
-  '/daily/add': typeof DailyAddRoute
-  '/archives': typeof ArchivesIndexRoute
+  '/reviewdle/$gameId': typeof ReviewdleGameIdRoute
+  '/login': typeof LoginIndexRoute
+  '/reviewdle': typeof ReviewdleIndexRoute
+  '/reviewdle/admin/add': typeof ReviewdleAdminAddRoute
+  '/reviewdle/admin': typeof ReviewdleAdminIndexRoute
+  '/reviewdle/admin/edit/$gameId': typeof ReviewdleAdminEditGameIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/archives/$gameId': typeof ArchivesGameIdRoute
-  '/daily/add': typeof DailyAddRoute
-  '/archives': typeof ArchivesIndexRoute
+  '/reviewdle/$gameId': typeof ReviewdleGameIdRoute
+  '/login': typeof LoginIndexRoute
+  '/reviewdle': typeof ReviewdleIndexRoute
+  '/reviewdle/admin/add': typeof ReviewdleAdminAddRoute
+  '/reviewdle/admin': typeof ReviewdleAdminIndexRoute
+  '/reviewdle/admin/edit/$gameId': typeof ReviewdleAdminEditGameIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/archives/$gameId': typeof ArchivesGameIdRoute
-  '/daily/add': typeof DailyAddRoute
-  '/archives/': typeof ArchivesIndexRoute
+  '/reviewdle/$gameId': typeof ReviewdleGameIdRoute
+  '/login/': typeof LoginIndexRoute
+  '/reviewdle/': typeof ReviewdleIndexRoute
+  '/reviewdle/admin/add': typeof ReviewdleAdminAddRoute
+  '/reviewdle/admin/': typeof ReviewdleAdminIndexRoute
+  '/reviewdle/admin/edit/$gameId': typeof ReviewdleAdminEditGameIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/archives/$gameId' | '/daily/add' | '/archives'
+  fullPaths:
+    | '/'
+    | '/reviewdle/$gameId'
+    | '/login'
+    | '/reviewdle'
+    | '/reviewdle/admin/add'
+    | '/reviewdle/admin'
+    | '/reviewdle/admin/edit/$gameId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/archives/$gameId' | '/daily/add' | '/archives'
-  id: '__root__' | '/' | '/archives/$gameId' | '/daily/add' | '/archives/'
+  to:
+    | '/'
+    | '/reviewdle/$gameId'
+    | '/login'
+    | '/reviewdle'
+    | '/reviewdle/admin/add'
+    | '/reviewdle/admin'
+    | '/reviewdle/admin/edit/$gameId'
+  id:
+    | '__root__'
+    | '/'
+    | '/reviewdle/$gameId'
+    | '/login/'
+    | '/reviewdle/'
+    | '/reviewdle/admin/add'
+    | '/reviewdle/admin/'
+    | '/reviewdle/admin/edit/$gameId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ArchivesGameIdRoute: typeof ArchivesGameIdRoute
-  DailyAddRoute: typeof DailyAddRoute
-  ArchivesIndexRoute: typeof ArchivesIndexRoute
+  ReviewdleGameIdRoute: typeof ReviewdleGameIdRoute
+  LoginIndexRoute: typeof LoginIndexRoute
+  ReviewdleIndexRoute: typeof ReviewdleIndexRoute
+  ReviewdleAdminAddRoute: typeof ReviewdleAdminAddRoute
+  ReviewdleAdminIndexRoute: typeof ReviewdleAdminIndexRoute
+  ReviewdleAdminEditGameIdRoute: typeof ReviewdleAdminEditGameIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -78,25 +131,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/archives/': {
-      id: '/archives/'
-      path: '/archives'
-      fullPath: '/archives'
-      preLoaderRoute: typeof ArchivesIndexRouteImport
+    '/reviewdle/': {
+      id: '/reviewdle/'
+      path: '/reviewdle'
+      fullPath: '/reviewdle'
+      preLoaderRoute: typeof ReviewdleIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/daily/add': {
-      id: '/daily/add'
-      path: '/daily/add'
-      fullPath: '/daily/add'
-      preLoaderRoute: typeof DailyAddRouteImport
+    '/login/': {
+      id: '/login/'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/archives/$gameId': {
-      id: '/archives/$gameId'
-      path: '/archives/$gameId'
-      fullPath: '/archives/$gameId'
-      preLoaderRoute: typeof ArchivesGameIdRouteImport
+    '/reviewdle/$gameId': {
+      id: '/reviewdle/$gameId'
+      path: '/reviewdle/$gameId'
+      fullPath: '/reviewdle/$gameId'
+      preLoaderRoute: typeof ReviewdleGameIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reviewdle/admin/': {
+      id: '/reviewdle/admin/'
+      path: '/reviewdle/admin'
+      fullPath: '/reviewdle/admin'
+      preLoaderRoute: typeof ReviewdleAdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reviewdle/admin/add': {
+      id: '/reviewdle/admin/add'
+      path: '/reviewdle/admin/add'
+      fullPath: '/reviewdle/admin/add'
+      preLoaderRoute: typeof ReviewdleAdminAddRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reviewdle/admin/edit/$gameId': {
+      id: '/reviewdle/admin/edit/$gameId'
+      path: '/reviewdle/admin/edit/$gameId'
+      fullPath: '/reviewdle/admin/edit/$gameId'
+      preLoaderRoute: typeof ReviewdleAdminEditGameIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -104,9 +178,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ArchivesGameIdRoute: ArchivesGameIdRoute,
-  DailyAddRoute: DailyAddRoute,
-  ArchivesIndexRoute: ArchivesIndexRoute,
+  ReviewdleGameIdRoute: ReviewdleGameIdRoute,
+  LoginIndexRoute: LoginIndexRoute,
+  ReviewdleIndexRoute: ReviewdleIndexRoute,
+  ReviewdleAdminAddRoute: ReviewdleAdminAddRoute,
+  ReviewdleAdminIndexRoute: ReviewdleAdminIndexRoute,
+  ReviewdleAdminEditGameIdRoute: ReviewdleAdminEditGameIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

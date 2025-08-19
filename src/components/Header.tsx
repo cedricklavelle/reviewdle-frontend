@@ -26,12 +26,6 @@ export function Header() {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-start",
-            }}
-          >
             <IconButton
               size="large"
               edge="start"
@@ -61,27 +55,25 @@ export function Header() {
           </Typography>
 
             <Stack direction="row" spacing={2}>
-              <Button component={Link} to="/archives/17" color="inherit">
+              <Button component={Link} to="/reviewdle/17" color="inherit">
                 Daily
               </Button>
-              <Button component={Link} to="/archives" color="inherit">
+              <Button component={Link} to="/reviewdle" color="inherit">
                 Archives
               </Button>
-              <Button component={Link} to="/daily/add" color="inherit">
+              <Box sx={{
+                display:"flex",
+                justifyContent:"flex-end"
+              }}>
+ 
+              <Button component={Link} to="/reviewdle/admin/add" color="inherit">
               Add
             </Button>
+            <Button component={Link} to="/reviewdle/admin" color="inherit">
+              Admin Calendar
+            </Button>               
+              </Box>
             </Stack>
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-            }}
-          >
-            <Button component={Link} to="/Admin" color="inherit">
-              Admin
-            </Button>
-          </Box>
         </Toolbar>
       </AppBar>
     </Box>

@@ -7,19 +7,19 @@ import {
   Typography,
 } from "@mui/material";
 import useFetchMovies from "~/hooks/useFetchMovies";
-import { Route } from "~/routes/archives/$gameId";
+import { Route } from "~/routes/reviewdle/$gameId";
 import { Game as GameType } from "~/types/game";
-import { IndexPicker } from "~/components/IndexPicker";
-import { useReviewdleGameState } from "~/hooks/useReviewdleGameState";
-import { ReviewdleEndgameDisplay } from "~/components/ReviewdleEndgameDisplay";
-import { ReviewdleHintDisplay } from "~/components/ReviewdleHintDisplay";
-import { ReviewdleReviewDisplay } from "~/components/ReviewdleReviewDisplay";
-import { ReviewdleGuessDisplay } from "~/components/ReviewdleGuessDisplay";
-import { ReviewdleMovieSubmitter } from "~/components/ReviewdleMovieSubmitter";
 import { Movie } from "~/types/movie";
 import useLocalStorage from "~/hooks/useLocalStorage";
 import { GameState } from "~/types/gameState";
 import { useEffect } from "react";
+import { ReviewdleEndgameDisplay } from "~/components/reviewdle/Endgame";
+import { ReviewdleGuessDisplay } from "~/components/reviewdle/GuessList";
+import { ReviewdleHintDisplay } from "~/components/reviewdle/Hints";
+import { IndexPicker } from "~/components/reviewdle/IndexPicker";
+import { ReviewdleMovieSubmitter } from "~/components/reviewdle/MovieSubmitter";
+import { ReviewdleReviewDisplay } from "~/components/reviewdle/ReviewDisplay";
+import { useReviewdleGameState } from "~/hooks/useReviewdleGameState";
 
 const centeredFlex = {
   display: "flex",
@@ -29,8 +29,6 @@ const centeredFlex = {
 export const Game = () => {
   const game: GameType = Route.useLoaderData();
   const { setItem, getItem } = useLocalStorage(`reviewdle-${game.id}`);
-
-
 
   const initialState: GameState = getItem() ?? {
     movieAnswer: game.movie,
@@ -45,8 +43,8 @@ export const Game = () => {
   const { state, dispatch } = useReviewdleGameState(initialState);
 
   useEffect(() => {
-      setItem(state)
-  },[state])
+    setItem(state);
+  }, [state]);
 
   const { movies } = useFetchMovies(state.input);
   const gameOver = state.isGameWon || state.isGameLost;
@@ -71,7 +69,8 @@ export const Game = () => {
         <Box
           sx={{
             position: "relative",
-            border: "1px solid white",
+            border: "1px solid gray",
+            borderRadius: 2,
             m: "auto",
             mt: 5,
             bgcolor: "#222",
@@ -147,7 +146,7 @@ export const Game = () => {
         >
           <ReviewdleMovieSubmitter
             movies={movies}
-            gameOver={gameOver} 
+            gameOver={gameOver}
             gameState={state}
             handleSelectMovie={(newInputValue: Movie | null) =>
               dispatch({
