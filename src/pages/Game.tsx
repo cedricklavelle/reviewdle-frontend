@@ -28,23 +28,9 @@ const centeredFlex = {
 
 export const Game = () => {
   const game: GameType = Route.useLoaderData();
-  const { setItem, getItem } = useLocalStorage(`reviewdle-${game.id}`);
+  const { state, skip, setInput, setHintNumberDisplayed, setSelectedMovie, submit } = useReviewdleGameState(game);
 
-  const initialState: GameState = getItem() ?? {
-    movieAnswer: game.movie,
-    gameId: game.id,
-    movieGuess: null,
-    input: "",
-    isGameWon: false,
-    isGameLost: false,
-    guesses: [],
-    currentIndex: 1,
-  };
-  const { state, dispatch } = useReviewdleGameState(initialState);
 
-  useEffect(() => {
-    setItem(state);
-  }, [state]);
 
   const { movies } = useFetchMovies(state.input);
   const gameOver = state.isGameWon || state.isGameLost;
@@ -111,12 +97,7 @@ export const Game = () => {
           >
             <Stack spacing={2} direction="row">
               <IndexPicker
-                handleIndexClick={(reviewIndex: number) =>
-                  dispatch({
-                    type: "SET_DISPLAY_INDEX",
-                    indexNumber: reviewIndex,
-                  })
-                }
+                handleIndexClick={(reviewIndex: number) => setHintNumberDisplayed(reviewIndex)}
                 winningIndex={
                   state.guesses.findIndex((guess) => guess.guessSuccess) + 1
                 }
@@ -125,7 +106,7 @@ export const Game = () => {
                 disableButton={gameOver}
               ></IndexPicker>
               <Button
-                onClick={() => dispatch({ type: "SKIP" })}
+                onClick={skip}
                 disabled={gameOver}
                 color="warning"
                 variant="contained"
@@ -149,22 +130,12 @@ export const Game = () => {
             gameOver={gameOver}
             gameState={state}
             handleSelectMovie={(newInputValue: Movie | null) =>
-              dispatch({
-                type: "SET_SELECTED_MOVIE",
-                selectedMovie: newInputValue,
-              })
+              setSelectedMovie(newInputValue)
             }
             handleInputChange={(newInputValue: string) =>
-              dispatch({
-                type: "SET_INPUT",
-                input: newInputValue,
-              })
+              setInput(newInputValue)
             }
-            handleSubmit={() =>
-              dispatch({
-                type: "SUBMIT",
-              })
-            }
+            handleSubmit={submit}
           ></ReviewdleMovieSubmitter>
           <ReviewdleGuessDisplay
             guesses={state.guesses}

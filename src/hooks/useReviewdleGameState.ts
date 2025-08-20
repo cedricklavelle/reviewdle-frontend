@@ -1,8 +1,9 @@
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import { Game } from "~/types/game";
 import { GameAction } from "~/types/gameAction";
 import { GameState, Guess } from "~/types/gameState";
 import useLocalStorage from "./useLocalStorage";
+import { Movie } from "~/types/movie";
 
 const MAX_GUESSES = 5;
 
@@ -62,7 +63,31 @@ function reducer(state: GameState, action: GameAction) {
   }
 }
 
-export function useReviewdleGameState(initialState: GameState) {
+export function useReviewdleGameState(game: Game) {
+
+  const { setItem, getItem } = useLocalStorage(`reviewdle-${game.id}`);
+
+  const initialState: GameState = getItem() ?? {
+    movieAnswer: game.movie,
+    gameId: game.id,
+    movieGuess: null,
+    input: "",
+    isGameWon: false,
+    isGameLost: false,
+    guesses: [],
+    currentIndex: 1,
+  };
+
   const [state, dispatch] = useReducer(reducer, initialState);
-  return { state, dispatch };
+
+  useEffect(() => {
+    setItem(state);
+  }, [state]);
+
+  const skip = () => dispatch({ type: "SKIP" });
+  const setInput = (input: string) => dispatch({ type: "SET_INPUT", input: input });
+  const setHintNumberDisplayed = (hintNumberDisplayed: number) => dispatch({ type: "SET_DISPLAY_INDEX", indexNumber: hintNumberDisplayed });
+  const setSelectedMovie = (selectedMovie: Movie | null) => dispatch({ type: "SET_SELECTED_MOVIE", selectedMovie: selectedMovie });
+  const submit = () => dispatch({ type: "SUBMIT"});
+  return { state, skip, setInput, setHintNumberDisplayed, setSelectedMovie, submit };
 }
