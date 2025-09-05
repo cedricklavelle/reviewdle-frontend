@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
-import AddGame from '~/pages/AddGame'
+import AddGamePage from '~/pages/AddGamePage'
 
 export const Route = createFileRoute('/reviewdle/admin/add')({
-  component: AddGame,
+  component: AddGamePage,
 })
 

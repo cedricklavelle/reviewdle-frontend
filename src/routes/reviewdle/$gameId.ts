@@ -6,7 +6,8 @@ import { Movie } from '~/types/movie';
 export const Route = createFileRoute('/reviewdle/$gameId')({
   component: GamePage,
   loader: async ({params}) => {
-    const response = await fetch(`http://localhost:3005/games/reviewdle/${params.gameId}`);
+    const apiUrl = import.meta.env.VITE_BACKEND_URL;
+    const response = await fetch(`${apiUrl}/games/${params.gameId}`);
     if (!response.ok) {
       throw new Error("Failed to load games");
     }

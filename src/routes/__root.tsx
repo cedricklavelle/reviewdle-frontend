@@ -14,6 +14,8 @@ import React from "react";
 import { Header } from "~/components/Header";
 import darkTheme from "~/themes/darkTheme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import DvdBackground from "~/components/Background";
+
 
 const queryClient = new QueryClient();
 
@@ -55,7 +57,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Providers>
           <QueryClientProvider client={queryClient}>
             <Header />
-
             {children}
           </QueryClientProvider>
         </Providers>

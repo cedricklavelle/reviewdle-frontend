@@ -6,7 +6,7 @@ export default function useFetchMovies(inputValue: string) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
     const [movies, setMovies] = useState<Movie[]>([]);
-  
+    const apiUrl = import.meta.env.VITE_BACKEND_URL;
     const abortControllerRef = useRef<AbortController | null>(null);
   
     const fetchMovies = useCallback(async () => {
@@ -24,7 +24,7 @@ export default function useFetchMovies(inputValue: string) {
   
       try {
         const response = await fetch(
-          `http://localhost:3005/movies/search/autocomplete?query=${encodeURIComponent(inputValue)}`,
+          `${apiUrl}/movies/search?title=${encodeURIComponent(inputValue)}`,
           { signal: abortControllerRef.current.signal }
         );
   

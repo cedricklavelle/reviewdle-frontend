@@ -10,9 +10,6 @@ import useFetchMovies from "~/hooks/useFetchMovies";
 import { Route } from "~/routes/reviewdle/$gameId";
 import { Game as GameType } from "~/types/game";
 import { Movie } from "~/types/movie";
-import useLocalStorage from "~/hooks/useLocalStorage";
-import { GameState } from "~/types/gameState";
-import { useEffect } from "react";
 import { ReviewdleEndgameDisplay } from "~/components/reviewdle/Endgame";
 import { ReviewdleGuessDisplay } from "~/components/reviewdle/GuessList";
 import { ReviewdleHintDisplay } from "~/components/reviewdle/Hints";
@@ -20,6 +17,7 @@ import { IndexPicker } from "~/components/reviewdle/IndexPicker";
 import { ReviewdleMovieSubmitter } from "~/components/reviewdle/MovieSubmitter";
 import { ReviewdleReviewDisplay } from "~/components/reviewdle/ReviewDisplay";
 import { useReviewdleGameState } from "~/hooks/useReviewdleGameState";
+import DvdBackground from "~/components/Background";
 
 const centeredFlex = {
   display: "flex",
@@ -28,120 +26,130 @@ const centeredFlex = {
 
 export const Game = () => {
   const game: GameType = Route.useLoaderData();
-  const { state, skip, setInput, setHintNumberDisplayed, setSelectedMovie, submit } = useReviewdleGameState(game);
-
-
+  const {
+    state,
+    skip,
+    setInput,
+    setHintNumberDisplayed,
+    setSelectedMovie,
+    submit,
+  } = useReviewdleGameState(game);
 
   const { movies } = useFetchMovies(state.input);
   const gameOver = state.isGameWon || state.isGameLost;
   const maxDisplayedHint = state.guesses.length + 1;
 
   return (
-    <Box
-      sx={{
-        ...centeredFlex,
-        pt: 5,
-      }}
-    >
-      <Stack
+    <>
+      <DvdBackground></DvdBackground>
+      <Box
         sx={{
           ...centeredFlex,
-          pt: 1,
-          alignItems: "center",
+          pt: 5,
         }}
-        direction="column"
       >
-        <Typography variant="h2">Daily game</Typography>
-        <Box
+        <Stack
           sx={{
-            position: "relative",
-            border: "1px solid gray",
-            borderRadius: 2,
-            m: "auto",
-            mt: 5,
-            bgcolor: "#222",
-            maxWidth: 500,
+            ...centeredFlex,
+            pt: 1,
+            alignItems: "center",
           }}
+          direction="column"
         >
-          <ReviewdleHintDisplay
-            reviewNumberRevealed={maxDisplayedHint}
-            isGameWon={state.isGameWon}
-            movie={game.movie}
-          ></ReviewdleHintDisplay>
+          <Typography variant="h2">Daily game</Typography>
           <Box
-            mt={8}
-            pl={2}
-            pr={2}
             sx={{
-              ...centeredFlex,
+              position: "relative",
+              border: "1px solid gray",
+              borderRadius: 2,
+              m: "auto",
+              mt: 5,
+              bgcolor: "#222",
+              maxWidth: 500,
             }}
           >
-            <Stack spacing={2} direction="column">
-              {gameOver && (
-                <ReviewdleEndgameDisplay
-                  game={game}
-                  gameState={state}
-                ></ReviewdleEndgameDisplay>
-              )}
-              <ReviewdleReviewDisplay
-                reviews={game.reviews}
-                index={state.currentIndex}
-              ></ReviewdleReviewDisplay>
-            </Stack>
+            <ReviewdleHintDisplay
+              reviewNumberRevealed={maxDisplayedHint}
+              isGameWon={state.isGameWon}
+              movie={game.movie}
+            ></ReviewdleHintDisplay>
+            <Box
+              mt={8}
+              pl={2}
+              pr={2}
+              sx={{
+                ...centeredFlex,
+              }}
+            >
+              <Stack spacing={2} direction="column">
+                {gameOver && (
+                  <ReviewdleEndgameDisplay
+                    game={game}
+                    gameState={state}
+                  ></ReviewdleEndgameDisplay>
+                )}
+                <ReviewdleReviewDisplay
+                  reviews={game.reviews}
+                  index={state.currentIndex}
+                ></ReviewdleReviewDisplay>
+              </Stack>
+            </Box>
+            <Box
+              padding={5}
+              sx={{
+                ...centeredFlex,
+              }}
+            >
+              <Stack spacing={2} direction="row">
+                <IndexPicker
+                  handleIndexClick={(reviewIndex: number) =>
+                    setHintNumberDisplayed(reviewIndex)
+                  }
+                  winningIndex={
+                    state.guesses.findIndex((guess) => guess.guessSuccess) + 1
+                  }
+                  reviewIndex={state.currentIndex}
+                  maxDisplayedHint={maxDisplayedHint}
+                  disableButton={gameOver}
+                ></IndexPicker>
+                <Button
+                  onClick={skip}
+                  disabled={gameOver}
+                  color="warning"
+                  variant="contained"
+                >
+                  Skip
+                </Button>
+              </Stack>
+            </Box>
           </Box>
           <Box
-            padding={5}
+            width="100%"
+            pt={2}
             sx={{
-              ...centeredFlex,
+              "& > *": {
+                width: "100%",
+              },
             }}
           >
-            <Stack spacing={2} direction="row">
-              <IndexPicker
-                handleIndexClick={(reviewIndex: number) => setHintNumberDisplayed(reviewIndex)}
-                winningIndex={
-                  state.guesses.findIndex((guess) => guess.guessSuccess) + 1
-                }
-                reviewIndex={state.currentIndex}
-                maxDisplayedHint={maxDisplayedHint}
-                disableButton={gameOver}
-              ></IndexPicker>
-              <Button
-                onClick={skip}
-                disabled={gameOver}
-                color="warning"
-                variant="contained"
-              >
-                Skip
-              </Button>
-            </Stack>
+            <ReviewdleMovieSubmitter
+              movies={movies}
+              gameOver={gameOver}
+              gameState={state}
+              handleSelectMovie={(newInputValue: Movie | null) =>
+                setSelectedMovie(newInputValue)
+              }
+              handleInputChange={(newInputValue: string) =>
+                setInput(newInputValue)
+              }
+              handleSubmit={submit}
+            ></ReviewdleMovieSubmitter>
+            <ReviewdleGuessDisplay
+              guesses={state.guesses}
+            ></ReviewdleGuessDisplay>
           </Box>
-        </Box>
-        <Box
-          width="100%"
-          pt={2}
-          sx={{
-            "& > *": {
-              width: "100%",
-            },
-          }}
-        >
-          <ReviewdleMovieSubmitter
-            movies={movies}
-            gameOver={gameOver}
-            gameState={state}
-            handleSelectMovie={(newInputValue: Movie | null) =>
-              setSelectedMovie(newInputValue)
-            }
-            handleInputChange={(newInputValue: string) =>
-              setInput(newInputValue)
-            }
-            handleSubmit={submit}
-          ></ReviewdleMovieSubmitter>
-          <ReviewdleGuessDisplay
-            guesses={state.guesses}
-          ></ReviewdleGuessDisplay>
-        </Box>
-      </Stack>
-    </Box>
+        </Stack>
+      </Box>
+    </>
   );
 };

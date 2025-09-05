@@ -1,124 +1,59 @@
 import {
-  Alert,
   Autocomplete,
   Box,
   Button,
-  FormControl,
   Paper,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { Movie } from "~/types/movie";
 import useFetchMovies from "~/hooks/useFetchMovies";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import "dayjs/locale/de";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
-import { Review } from "~/types/review";
 import { IndexPicker } from "~/components/reviewdle/IndexPicker";
-import { useLoaderData } from "@tanstack/react-router";
+
 import { Game } from "~/types/game";
-import { Route } from "~/routes/reviewdle/admin/edit/$gameId";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 import { ReviewdleReviewDisplay } from "~/components/reviewdle/ReviewDisplay";
-import { date } from "zod";
+import { useReviewdleForm } from "~/hooks/useReviewdleForm";
+import { useState } from "react";
+import { checkGameExists } from "~/api/reviewdleApi";
+import { Review } from "~/types/review";
 
-const AddGame = () => {
+
+type AddGameProps = {
+    game?: Game;
+    date?: string;
+};
+
+const AddGame = ({game, date}: AddGameProps) => {
+
+  
+  const {
+    form,
+    fields,
+    handleAddReview,
+    reviewInput,
+    setReviewInput,
+    successMessage,
+    submitGame,
+    reviewIndex,
+    setReviewIndex
+  } = useReviewdleForm(game, date);
+
   const [movieNameInput, setMovieNameInput] = useState("");
-  const [reviewInput, setReviewInput] = useState("");
-  const [reviewIndex, setReviewIndex] = useState(1);
-  const [successMessage, setSuccessMessage] = useState("");
-  const { movies, isLoading, error } = useFetchMovies(movieNameInput);
-  const form = useForm<Game>({
-    defaultValues: {
-      movie: null,
-      date: new Date().toString(),
-      reviews: [],
-      name: "reviewdle",
-    },
-  });
-
-  const { register, handleSubmit, watch, reset, formState, control } = form;
+  const { control, register, handleSubmit, formState, watch } = form;
   const { errors } = formState;
-
   const reviews: Review[] = watch("reviews");
-  console.log(reviews);
-
-  const { fields, append } = useFieldArray({
-    control,
-    name: "reviews",
-    rules: {
-      validate: (value) => value.length === 5 || "You need five reviews.",
-    },
-  });
+  const {movies} = useFetchMovies(movieNameInput);
 
   const centeredFlex = {
     display: "flex",
     justifyContent: "center",
-  };
-
-  const handleAddReview = () => {
-    const existingIndex = reviews.findIndex(
-      (review) => review.hintNumber === reviewIndex
-    );
-
-    const newReview = {
-      reviewText: reviewInput,
-      hintNumber: reviewIndex,
-    };
-
-    if (reviewIndex < 5) {
-      setReviewIndex(reviewIndex + 1);
-    }
-
-    if (existingIndex !== -1) {
-      reviews[existingIndex] = newReview;
-    } else {
-      append(newReview);
-    }
-
-    console.log("added review! -> " + reviews);
-
-    setReviewInput("");
-  };
-
-  const onSubmit = async (data: Game) => {
-    const payload = {
-      gameName: data.name,
-      date: data.date,
-      movieId: data.movie?.id,
-      reviews: data.reviews,
-    };
-
-    try {
-      console.log("about to fetch");
-      const response = await fetch("http://localhost:3005/games/reviewdle", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.status === 409) {
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error("Failed to submit");
-      }
-      const result = await response.text();
-      setSuccessMessage(
-        `Succesfully added reviewdle for ${data.movie?.title}, date of the game : ${payload.date}`
-      );
-      reset();
-      console.log("Submitted successfully:", result);
-    } catch (error) {
-      console.error(error);
-    }
-    console.log(data);
   };
 
   return (
@@ -129,10 +64,10 @@ const AddGame = () => {
       <Stack width={400} direction="column" spacing={2} alignItems="center">
         <Box>
           <Typography variant="h2" gutterBottom>
-            ADD GAME
+            {game ? "Edit game" : "Add game"}
           </Typography>
         </Box>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(submitGame)}>
           <Controller
             name="movie"
             control={control}
@@ -168,21 +103,13 @@ const AddGame = () => {
               rules={{
                 required: "Date is required",
                 validate: async (value) => {
+                  if (game && game.date===value) return true;
+                  if (!value) return "Date is required"; 
                   try {
-                    console.log("about to fetch");
-                    const response = await fetch(
-                      `http://localhost:3005/games/reviewdle/exists/${value}`,
-                      {
-                        method: "GET",
-                      }
-                    );
-                    const data = await response.json();
-                    console.log(data);
-                    if (data.exists) {
-                      return "A game with that date already exists";
-                    }
+                    const data = await checkGameExists(value);
+                    return data.exists ? "A game already exists for this date." : true;
                   } catch (error) {
-                    console.error(error);
+                    console.error("Something went wrong while validating the date: " + error);
                   }
                 },
               }}
@@ -212,7 +139,7 @@ const AddGame = () => {
               )}
             />
           </LocalizationProvider>
-          <Paper sx={{ height: 75 }}>
+          <Paper sx={{ minHeight: 80  }}>
             <ReviewdleReviewDisplay
               reviews={reviews}
               index={reviewIndex}
